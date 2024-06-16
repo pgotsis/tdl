@@ -2,6 +2,7 @@ name: master builder
 
 on:
   pull_request:
+    branches: [ master ]
   push:
     branches: [ master ]
     paths:
@@ -17,6 +18,12 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        directory:
+          - .
+          - core
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,9 +33,10 @@ jobs:
           go-version-file: go.mod
           cache: false # conflict with golangci-lint cache
       - name: lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.54
+          working-directory: ${{ matrix.directory }}
   build-and-test:
     runs-on: ubuntu-20.04
     steps:
